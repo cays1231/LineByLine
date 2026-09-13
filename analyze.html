@@ -444,23 +444,7 @@ function startQuestions() {
   }
   localStorage.setItem('currentText', selectedText.title);
 }
-
-  const seen = JSON.parse(localStorage.getItem('seenTexts') || '[]');
-  if (!seen.includes(selectedText.id)) {
-    seen.push(selectedText.id);
-    localStorage.setItem('seenTexts', JSON.stringify(seen));
-  }
-  localStorage.setItem('currentText', selectedText.title);
-}
-
-  const seen = JSON.parse(localStorage.getItem('seenTexts') || '[]');
-  if (!seen.includes(selectedText.id)) {
-    seen.push(selectedText.id);
-    localStorage.setItem('seenTexts', JSON.stringify(seen));
-  }
-  localStorage.setItem('currentText', selectedText.title);
-}
-
+  
 function saveColdThesis() {
   const answer = document.getElementById('cold-thesis-answer').value.trim();
   if (answer === '') {
