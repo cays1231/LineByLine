@@ -496,7 +496,7 @@ function nextQuestion() {
 }
 
 function startTimer() {
-  if (timerInterval) return;
+  if (timerInterval) clearInterval(timerInterval);
   timerInterval = setInterval(function() {
     seconds++;
     const mins = String(Math.floor(seconds / 60)).padStart(2, '0');
