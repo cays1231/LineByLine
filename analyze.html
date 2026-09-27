@@ -544,21 +544,22 @@ function finishPractice() {
   return 'Q' + (i+1) + ': ' + a.answer;
 }).join(' | ');
 
-fetch('https://script.google.com/macros/s/AKfycbxttUy_E8LY1BZD-3hwGw3VQ4rmuMYPpSgTNHgu1KGryes-zY6RDsOuXtcfwZRm4yLa-A/exec', {  method: 'POST',
+var formData = new FormData();
+formData.append('date', new Date().toLocaleDateString());
+formData.append('tier', tier);
+formData.append('text', selectedText.title);
+formData.append('time', timeSpent);
+formData.append('coldThesis', coldThesis || 'N/A');
+formData.append('finalClaim', finalAnswer);
+formData.append('skills', JSON.parse(localStorage.getItem('skills') || '[]').join(', '));
+formData.append('responses', allResponses);
+
+fetch('https://script.google.com/macros/s/AKfycbxttUy_E8LY1BZD-3hwGw3VQ4rmuMYPpSgTNHgu1KGryes-zY6RDsOuXtcfwZRm4yLa-A/exec', {
+  method: 'POST',
   mode: 'no-cors',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify({
-    date: new Date().toLocaleDateString(),
-    tier: tier,
-    text: selectedText.title,
-    time: timeSpent,
-    coldThesis: coldThesis || 'N/A',
-    finalClaim: finalAnswer,
-    skills: JSON.parse(localStorage.getItem('skills') || '[]').join(', '),
-    responses: allResponses
-  })
+  body: formData
 }).catch(function(err) {
-  console.log('Sheet sync failed silently:', err);
+  console.log('Sheet sync failed:', err);
 });
   document.getElementById('step-3').classList.add('hidden');
   document.getElementById('step-4').classList.remove('hidden');
