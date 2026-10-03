@@ -16,7 +16,6 @@
     <div class="timer-box"><span id="timer">00:00</span></div>
   </div>
 
-  <!-- STEP 1: Read the text -->
   <div class="step" id="step-1">
     <div class="owl-bubble">
       <div class="owl-wrap">
@@ -57,7 +56,6 @@
     <button class="start-btn" onclick="goToStep2()">I've read it, let's go! →</button>
   </div>
 
-  <!-- STEP 2: Cold thesis (only if writing a thesis selected) -->
   <div class="step hidden" id="step-2">
     <div class="text-preview-box" id="text-preview-2"></div>
     <div class="owl-bubble">
@@ -98,7 +96,6 @@
     <button class="start-btn" onclick="saveColdThesis()">Got it, let's analyze! →</button>
   </div>
 
-  <!-- STEP 3: Guiding questions -->
   <div class="step hidden" id="step-3">
     <div class="text-display" id="text-display"></div>
     <div class="qa-thread" id="qa-thread"></div>
@@ -147,7 +144,6 @@
     <button class="start-btn" onclick="nextQuestion()">Next →</button>
   </div>
 
-  <!-- STEP 4: Done -->
   <div class="step hidden" id="step-4">
     <div class="done-screen">
       <div class="owl-wrap" style="margin: 0 auto 1rem;">
@@ -404,7 +400,6 @@ window.addEventListener('DOMContentLoaded', function() {
   document.getElementById('text-preview').textContent = selectedText.passage;
   document.getElementById('text-preview-2').textContent = selectedText.passage;
   document.getElementById('text-source').textContent = '— ' + selectedText.title + ' by ' + selectedText.author;
-
   if (tier === 'elementary') {
     document.getElementById('cold-thesis-question').textContent =
       "Before we start — just from reading the passage, what do you think the author wrote this for? Just your best guess in one sentence, no wrong answers!";
@@ -426,17 +421,14 @@ function goToStep2() {
 
 function startQuestions() {
   activeQuestions = selectedText.questions[tier].slice();
-  
   if (!wantsThesis) {
     activeQuestions = activeQuestions.slice(0, -1);
   }
-
   document.getElementById('text-display').textContent = selectedText.passage;
   document.getElementById('step-1').classList.add('hidden');
   document.getElementById('step-2').classList.add('hidden');
   document.getElementById('step-3').classList.remove('hidden');
   showQuestion(0);
-
   const seen = JSON.parse(localStorage.getItem('seenTexts') || '[]');
   if (!seen.includes(selectedText.id)) {
     seen.push(selectedText.id);
@@ -444,7 +436,7 @@ function startQuestions() {
   }
   localStorage.setItem('currentText', selectedText.title);
 }
-  
+
 function saveColdThesis() {
   const answer = document.getElementById('cold-thesis-answer').value.trim();
   if (answer === '') {
@@ -454,7 +446,6 @@ function saveColdThesis() {
   coldThesis = answer;
   startQuestions();
 }
-
 
 function showQuestion(index) {
   const q = activeQuestions[index];
@@ -522,11 +513,9 @@ function getFormattedTime() {
 
 function finishPractice() {
   stopTimer();
-
   const finalAnswer = answers[answers.length - 1] ? answers[answers.length - 1].answer : '';
   const timeSpent = getFormattedTime();
 
-  // Save to localStorage
   const sessionHistory = JSON.parse(localStorage.getItem('sessionHistory') || '[]');
   sessionHistory.push({
     date: new Date().toISOString(),
@@ -538,27 +527,28 @@ function finishPractice() {
   });
   localStorage.setItem('sessionHistory', JSON.stringify(sessionHistory));
 
-  // Send to Google Sheets silently
-  const skills = localStorage.getItem('skills') || '[]';
   const allResponses = answers.map(function(a, i) {
-  return 'Q' + (i+1) + ': ' + a.answer;
-}).join(' | ');
+    return 'Q' + (i + 1) + ': ' + a.answer;
+  }).join(' | ');
 
-var formData = new FormData();
-formData.append('date', new Date().toLocaleDateString());
-formData.append('tier', tier);
-formData.append('text', selectedText.title);
-formData.append('time', timeSpent);
-formData.append('coldThesis', coldThesis || 'N/A');
-formData.append('finalClaim', finalAnswer);
-formData.append('skills', JSON.parse(localStorage.getItem('skills') || '[]').join(', '));
-formData.append('responses', allResponses);
+  fetch('https://script.google.com/macros/s/AKfycbw7jYFGdyhdqYvQMI_X_3BDuukx7tsRNTuqEh70rtZZMZOMv0qVm5yGYjbaRrTG5aAb/exec', {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      date: new Date().toLocaleDateString(),
+      tier: tier,
+      text: selectedText.title,
+      time: timeSpent,
+      coldThesis: coldThesis || 'N/A',
+      finalClaim: finalAnswer,
+      skills: JSON.parse(localStorage.getItem('skills') || '[]').join(', '),
+      responses: allResponses
+    })
+  }).catch(function(err) {
+    console.log('Sheet sync failed silently:', err);
+  });
 
-fetch('https://script.google.com/macros/s/AKfycbw7jYFGdyhdqYvQMI_X_3BDuukx7tsRNTuqEh70rtZZMZOMv0qVm5yGYjbaRrTG5aAb/exec', {  mode: 'no-cors',
-  body: formData
-}).catch(function(err) {
-  console.log('Sheet sync failed:', err);
-});
   document.getElementById('step-3').classList.add('hidden');
   document.getElementById('step-4').classList.remove('hidden');
 
