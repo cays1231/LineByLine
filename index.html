@@ -92,26 +92,23 @@
     </div>
   </div>
 
-  <div class="section-label">What grade are you in?</div>
+  <div class="section-label">What is your reading level?</div>
   <p class="tier-note">Not sure? If the questions feel too easy, move up a level — no pressure!</p>
   <div class="grade-row" id="grades">
-    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="elementary">2nd – 5th</button>
-    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="middle">6th – 8th</button>
-    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="upper">9th – 10th</button>
-    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="advanced">11th – 12th</button>
+    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="aa_c">Levels AA – C</button>
+    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="d_j">Levels D – J</button>
+    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="k_p">Levels K – P</button>
+    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="q_t">Levels Q – T</button>
+    <button class="grade-btn" onclick="selectOne('grade-btn', this)" data-tier="u_z">Levels U – Z</button>
   </div>
 
   <hr class="divider" />
 
-  <div class="section-label">What do you find hardest? (pick all that apply)</div>
+  <div class="section-label">What do you find hardest?</div>
   <div class="skill-grid">
-    <button class="skill-chip" onclick="toggleChip(this)">Writing a thesis</button>
-    <button class="skill-chip" onclick="toggleChip(this)">Finding evidence</button>
-    <button class="skill-chip" onclick="toggleChip(this)">Analysis & commentary</button>
-    <button class="skill-chip" onclick="toggleChip(this)">Structuring paragraphs</button>
-    <button class="skill-chip" onclick="toggleChip(this)">Responding to a prompt</button>
-    <button class="skill-chip" onclick="toggleChip(this)">Introductions & conclusions</button>
-    <button class="skill-chip" onclick="toggleChip(this)">Staying on topic</button>
+    <button class="skill-chip" onclick="selectSkill(this)">Writing a thesis</button>
+    <button class="skill-chip" onclick="selectSkill(this)">Finding evidence</button>
+    <button class="skill-chip" onclick="selectSkill(this)">Analysis & commentary</button>
   </div>
 
   <hr class="divider" />
@@ -195,22 +192,24 @@
     clicked.classList.add('active');
   }
 
-  function toggleChip(clicked) {
-    clicked.classList.toggle('active');
+  function selectSkill(clicked) {
+    document.querySelectorAll('.skill-chip').forEach(function(btn) {
+      btn.classList.remove('active');
+    });
+    clicked.classList.add('active');
   }
 
   function handleStart() {
     const grade = document.querySelector('.grade-btn.active');
     const mode = document.querySelector('.mode-card.active');
-    if (!grade || !mode) {
-      alert('Please select your grade and a mode before continuing!');
+    const skill = document.querySelector('.skill-chip.active');
+    if (!grade || !mode || !skill) {
+      alert('Please select your reading level, a skill, and a mode before continuing!');
       return;
     }
-    const selectedSkills = [...document.querySelectorAll('.skill-chip.active')]
-      .map(function(chip) { return chip.textContent; });
     localStorage.setItem('grade', grade.textContent);
     localStorage.setItem('tier', grade.dataset.tier);
-    localStorage.setItem('skills', JSON.stringify(selectedSkills));
+    localStorage.setItem('skill', skill.textContent);
     const modeName = mode.querySelector('.mode-title').textContent;
     if (modeName === 'Analyze a text') {
       window.location.href = 'analyze.html';
